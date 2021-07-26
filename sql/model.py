@@ -38,7 +38,7 @@ class U(Base, dBase):
     permission = Column(VARCHAR(255), default='user')
 
 
-class wx(Base, dBase):
+class Wx(Base, dBase):
     __tablename__ = 'wx'
 
     id = Column(BIGINT, primary_key=True, default=0)
@@ -46,12 +46,22 @@ class wx(Base, dBase):
     code = Column(VARCHAR(255))
 
 
-class eat(Base, dBase):
-    __tablename__ = 'eat'
+class Restaurant(Base, dBase):
+    __tablename__ = 'restaurant'
 
     id = Column(BIGINT, primary_key=True, default=0)
-    restaurants = Column(TEXT)
+    go = Column(VARCHAR(40))
+    this = Column(VARCHAR(40))
     did = Column(TEXT)
+    restaurant1 = Column(TEXT)
+    restaurant2 = Column(TEXT)
+    restaurant3 = Column(TEXT)
+    restaurant4 = Column(TEXT)
+    restaurant5 = Column(TEXT)
+    restaurant6 = Column(TEXT)
+    restaurant7 = Column(TEXT)
+    restaurant8 = Column(TEXT)
+    restaurant9 = Column(TEXT)
     active = Column(BIGINT)
     cache = Column(TEXT)
 

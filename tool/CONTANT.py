@@ -6,7 +6,7 @@
 @Desc  : 各种常量
 """
 import os
-from sql.model import U, wx, eat
+from sql.model import U, Wx, Restaurant
 
 PA = '爬'
 
@@ -48,8 +48,8 @@ IMG_PATH = {
 
 SQL_DICT = {
     'u': U,
-    'wx': wx,
-    'eat': eat,
+    'wx': Wx,
+    'restaurant': Restaurant,
 }
 
 GO_WEIGHT = 5

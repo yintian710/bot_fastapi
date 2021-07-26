@@ -3,12 +3,12 @@
 """
 @author: yintian
 @date: 2021-07-26
-@file: eat.py
+@file: restaurant.py
 @Desc
 """
 from fastapi import APIRouter
 
-from component.eat import get_user_restaurant, next_restaurant, go_restaurant, add_restaurants
+from component.restaurant import get_user_restaurant, next_restaurant, go_restaurant, add_restaurants
 
 restaurants = APIRouter(
     prefix="/restaurants",

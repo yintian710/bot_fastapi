@@ -11,7 +11,7 @@ from logging import INFO
 import uvicorn as uvicorn
 from fastapi import FastAPI
 
-from app.routers.eat import restaurants
+from app.routers.restaurant import restaurants
 from app.routers.score import score
 
 app = FastAPI()
