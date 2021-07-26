@@ -6,7 +6,7 @@
 @Desc  : 各种常量
 """
 import os
-from sql.model import U
+from sql.model import U, wx, eat
 
 PA = '爬'
 
@@ -47,13 +47,15 @@ IMG_PATH = {
 }
 
 SQL_DICT = {
-    'u': U
+    'u': U,
+    'wx': wx,
+    'eat': eat,
 }
 
 GO_WEIGHT = 5
 NEXT_WEIGHT = -2
 
-pa = '{"message": {"public": "爬", "private": ""}, "code": 1}'
+pa = {"message": {"public": "爬", "private": ""}, "code": 1}
 
 if __name__ == '__main__':
     print()

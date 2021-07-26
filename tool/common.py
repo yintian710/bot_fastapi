@@ -5,11 +5,10 @@
 @Date  : 2021/3/31 15:40
 @Desc  : 公共方法模块
 """
-import json
 import re
 
-from tool.CONTANT import pa
 from sql.employ import select_u, update_u
+from tool.CONTANT import pa
 
 
 def get_return(public_msg, private_msg='', public_id=0, private_id=0, need=None, code=0):

@@ -12,7 +12,13 @@ from sqlalchemy import Column, BIGINT, INT, VARCHAR, DATETIME, TEXT
 from sql.config import Base
 
 
-class U(Base):
+class dBase:
+
+    def get(self, *args):
+        return tuple(getattr(self, _) for _ in args)
+
+
+class U(Base, dBase):
     __tablename__ = 'U'
 
     id = Column(BIGINT, primary_key=True, default=0)
@@ -31,8 +37,23 @@ class U(Base):
     achievement = Column(TEXT)
     permission = Column(VARCHAR(255), default='user')
 
-    def get(self, *args):
-        return tuple(getattr(self, _) for _ in args)
+
+class wx(Base, dBase):
+    __tablename__ = 'wx'
+
+    id = Column(BIGINT, primary_key=True, default=0)
+    openid = Column(VARCHAR(255))
+    code = Column(VARCHAR(255))
+
+
+class eat(Base, dBase):
+    __tablename__ = 'eat'
+
+    id = Column(BIGINT, primary_key=True, default=0)
+    restaurants = Column(TEXT)
+    did = Column(TEXT)
+    active = Column(BIGINT)
+    cache = Column(TEXT)
 
 
 if __name__ == '__main__':

@@ -9,8 +9,8 @@ import datetime
 import json
 import random
 
-from tool.common import get_return, is_regis, change_score, select_score, enough_score, is_admin, add_score
 from sql.employ import select_u
+from tool.common import get_return, is_regis, change_score, select_score, is_admin, add_score
 
 
 @is_regis
@@ -22,8 +22,8 @@ def daily_score(user_id):
     """
     score, da = select_u(user_id, 'score', 'da')
     today = str(datetime.date.today())
-    if da == today:
-        return get_return('您已签到！', 1)
+    # if da == today:
+    #     return get_return('您已签到！', 1)
     a = random.randint(20, 50)
     score += a
     change_score(user_id, score, today)
