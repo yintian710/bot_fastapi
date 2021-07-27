@@ -9,12 +9,12 @@ import json
 import random
 import time
 
+from sql.employ import select_restaurant, update_restaurant
 from tool.CONTANT import GO_WEIGHT, NEXT_WEIGHT
 from tool.common import is_regis, get_return
-from sql.employ import select_restaurant, update_restaurant
 
 
-def save_restaurants_data(user_id, restaurant, go, this) -> None:
+def save_restaurants_data(user_id, restaurant, this, go=None) -> None:
     """
     存储用户更改后的食府数据
     :param this:
@@ -24,7 +24,10 @@ def save_restaurants_data(user_id, restaurant, go, this) -> None:
     :return:
     """
     restaurant = json.dumps(restaurant)
-    update_restaurant(user_id, {'go': go, this: restaurant, 'active': time.time()})
+    update_data = {'go': go, this: restaurant, 'active': time.time()}
+    if go is None:
+        update_data.pop('go')
+    update_restaurant(user_id, update_data)
 
 
 def get_restaurants_did(user_id) -> list:
@@ -145,6 +148,23 @@ def get_random_food(food_dic: dict, ignore=None) -> str:
     return random_food[0]
 
 
+def new_restaurant(user_id, this, default=None):
+    if not default:
+        default = {
+            "name": this,
+            "last_time": time.time(),
+            "food": {}
+        }
+    default = json.dumps(default)
+    update_restaurant(user_id, {this: default})
+
+
+def change_restaurant_name(user_id, restaurant_name):
+    this, restaurant = get_restaurant(user_id)
+    restaurant['name'] = restaurant_name
+    save_restaurants_data(user_id, restaurant, this)
+
+
 @is_regis
 def go_restaurant(user_id):
     this = get_this(user_id)
@@ -154,7 +174,7 @@ def go_restaurant(user_id):
     restaurant['food'][go] += GO_WEIGHT
     restaurant['last_time'] = time.time()
     did_restaurant(user_id, go)
-    save_restaurants_data(user_id, restaurant, '', this)
+    save_restaurants_data(user_id, restaurant, this, '')
     return get_return(public_msg=f'你选择了{go}， 冲鸭！', need={'food': go})
 
 
@@ -175,7 +195,7 @@ def next_restaurant(user_id):
     food = get_random_food(food_dic, ignore)
     go = food
     restaurant['last_time'] = now
-    save_restaurants_data(user_id, restaurant, go, this)
+    save_restaurants_data(user_id, restaurant, this, go)
     return get_return(public_msg=f'当前食物为：{food}', need={'food': food})
 
 
@@ -192,16 +212,25 @@ def add_restaurants(user_id, add):
             continue
         foods[_] = 100
     restaurant['food'] = foods
-    save_restaurants_data(user_id, restaurant, go, this)
+    save_restaurants_data(user_id, restaurant, this, go)
     return get_return(public_msg=f'添加成功{"!" if not repeat else f", 其中{repeat}重复！"}')
 
 
 @is_regis
-def change_user_this(user_id, new_this):
-    # restaurant_list = [f'restaurant{_}' for _ in range(1, 10)]
-    if not select_restaurant(user_id, new_this):
+def change_user_this(user_id, new_this_num):
+    new_this = f'restaurant{new_this_num}'
+    restaurant_list = [f'restaurant{_}' for _ in range(1, 10)]
+    if new_this not in restaurant_list:
         return get_return('食府id输入错误！')
+    if not select_restaurant(user_id, new_this)[0]:
+        new_restaurant(user_id, new_this)
     change_this(user_id, new_this)
+    return get_return(f'成功切换至食府{new_this}')
+
+
+@is_regis
+def change_user_restaurant_name(user, rerstaurant_name):
+    pass
 
 
 if __name__ == '__main__':
