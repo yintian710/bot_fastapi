@@ -55,6 +55,8 @@ SQL_DICT = {
 GO_WEIGHT = 5
 NEXT_WEIGHT = -2
 
+RESTAURANT_LIST = [f'restaurant{_}' for _ in range(1, 10)]
+
 pa = {"message": {"public": "爬", "private": ""}, "code": 1}
 
 if __name__ == '__main__':

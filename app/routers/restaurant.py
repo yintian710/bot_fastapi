@@ -8,7 +8,8 @@
 """
 from fastapi import APIRouter
 
-from component.restaurant import get_user_restaurant, next_restaurant, go_restaurant, add_restaurants, change_user_this
+from component.restaurant import get_user_restaurant, next_restaurant, go_restaurant, add_restaurants, change_user_this, \
+    change_user_restaurant_name
 
 restaurants = APIRouter(
     prefix="/restaurants",
@@ -46,6 +47,19 @@ async def _(user_id: int, add_str: str):
 async def _(user_id: int, new_this_num: str):
     result = change_user_this(user_id, new_this_num)
     return result
+
+
+@restaurants.post('/{user_id}/change_restaurant_name')
+async def _(user_id: int, new_restaurant_name: str):
+    result = change_user_restaurant_name(user_id, new_restaurant_name)
+    return result
+
+
+@restaurants.get('/{user_id}/go')
+async def _(user_id: int):
+    result = go_restaurant(user_id)
+    return result
+
 
 
 if __name__ == '__main__':

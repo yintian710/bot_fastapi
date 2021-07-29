@@ -10,7 +10,7 @@ import random
 import time
 
 from sql.employ import select_restaurant, update_restaurant
-from tool.CONTANT import GO_WEIGHT, NEXT_WEIGHT
+from tool.CONTANT import GO_WEIGHT, NEXT_WEIGHT, RESTAURANT_LIST
 from tool.common import is_regis, get_return
 
 
@@ -41,27 +41,28 @@ def get_restaurants_did(user_id) -> list:
     return did
 
 
-def save_restaurants_did(user_id, did):
+def did_restaurant(user_id, food):
     """
-    保存用户历史数据
+    保存历史go数据
     :param user_id:
-    :param did:
+    :param food:
     :return:
     """
+    did = get_restaurants_did(user_id)
+    did.append({'food': food, 'time': time.time()})
     did = json.dumps(did)
     update_restaurant(user_id, {'did': did, 'active': time.time()})
 
 
 def save_restaurants_cache(user_id, cache):
+    """
+    保存缓存
+    :param user_id:
+    :param cache:
+    :return:
+    """
     cache = json.dumps(cache)
     update_restaurant(user_id, {'cache': cache, 'active': time.time()})
-
-
-def did_restaurant(user_id, food):
-    did = get_restaurants_did(user_id)
-    did.append({'food': food, 'time': time.time()})
-    did = json.dumps(did)
-    update_restaurant(user_id, {'did': did, 'active': time.time()})
 
 
 def get_one_restaurant(user_id, restaurant_name) -> dict:
@@ -103,6 +104,11 @@ def get_user_restaurant(user_id):
 
 
 def get_restaurant_data(user_id):
+    """
+    获取食府当前go, did以及restaurant数据
+    :param user_id:
+    :return:
+    """
     this = get_this(user_id)
     go, did, restaurant = select_restaurant(user_id, 'go', 'did', this)
     restaurant = json.loads(restaurant)
@@ -149,6 +155,13 @@ def get_random_food(food_dic: dict, ignore=None) -> str:
 
 
 def new_restaurant(user_id, this, default=None):
+    """
+    新建食府
+    :param user_id:
+    :param this:
+    :param default:
+    :return:
+    """
     if not default:
         default = {
             "name": this,
@@ -159,14 +172,29 @@ def new_restaurant(user_id, this, default=None):
     update_restaurant(user_id, {this: default})
 
 
-def change_restaurant_name(user_id, restaurant_name):
+def change_restaurant_name(user_id, restaurant_name, _this=None):
+    """
+    更改食府名称
+    :param _this:
+    :param user_id:
+    :param restaurant_name:
+    :return:
+    """
     this, restaurant = get_restaurant(user_id)
+    if _this not in RESTAURANT_LIST:
+        return False
     restaurant['name'] = restaurant_name
     save_restaurants_data(user_id, restaurant, this)
+    return this
 
 
 @is_regis
 def go_restaurant(user_id):
+    """
+    选定当前食物
+    :param user_id:
+    :return:
+    """
     this = get_this(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     if not go:
@@ -180,6 +208,11 @@ def go_restaurant(user_id):
 
 @is_regis
 def next_restaurant(user_id):
+    """
+    下一个随机食物
+    :param user_id:
+    :return:
+    """
     this = get_this(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     now = time.time()
@@ -201,6 +234,12 @@ def next_restaurant(user_id):
 
 @is_regis
 def add_restaurants(user_id, add):
+    """
+    添加食府食物
+    :param user_id:
+    :param add:
+    :return:
+    """
     this = get_this(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     add = add.split(' ')
@@ -218,9 +257,14 @@ def add_restaurants(user_id, add):
 
 @is_regis
 def change_user_this(user_id, new_this_num):
+    """
+    更改用户当前选择食府
+    :param user_id:
+    :param new_this_num:
+    :return:
+    """
     new_this = f'restaurant{new_this_num}'
-    restaurant_list = [f'restaurant{_}' for _ in range(1, 10)]
-    if new_this not in restaurant_list:
+    if new_this not in RESTAURANT_LIST:
         return get_return('食府id输入错误！')
     if not select_restaurant(user_id, new_this)[0]:
         new_restaurant(user_id, new_this)
@@ -229,8 +273,17 @@ def change_user_this(user_id, new_this_num):
 
 
 @is_regis
-def change_user_restaurant_name(user, rerstaurant_name):
-    pass
+def change_user_restaurant_name(user_id, restaurant_name):
+    """
+    更改用户当前食府名称
+    :param user_id:
+    :param restaurant_name:
+    :return:
+    """
+    this = change_restaurant_name(user_id, restaurant_name)
+    if not this:
+        return get_return(f'食府选择出错')
+    return get_return(f'{this}成功命名为：{restaurant_name}')
 
 
 if __name__ == '__main__':
