@@ -5,11 +5,33 @@
 @Date  : 2021/5/14 14:27
 @Desc  : 
 """
+import json
 from random import randint
 
-from tool.CONTANT import pa
-from tool.common import is_regis, get_return
+import aiohttp
+
 from sql.employ import select_wx, update_wx, insert_wx, select_openid_in_wx, select_base, insert_base
+from tool.CONTANT import pa
+from tool.common import get_return
+from tool.common import is_regis
+
+
+async def get_login_openid(data):
+    url = 'https://api.weixin.qq.com/sns/jscode2session'
+    params = data['params']
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    async with aiohttp.ClientSession() as s:
+        async with s.get(url=url, params=params, headers=headers) as res:
+            if res.status != 200:
+                return get_return('获取失败', code=1)
+            data_json = await res.text()
+            data_json = json.loads(data_json)
+            if data_json.get('openid'):
+                return get_return('获取成功', need=data_json)
+            else:
+                return get_return('获取失败', code=1)
 
 
 def regis(user_id):

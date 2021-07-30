@@ -15,6 +15,10 @@ from sql.config import Base
 class dBase:
 
     def get(self, *args):
+        if '*' in args:
+            attr = self.__dict__.copy()
+            attr.pop('_sa_instance_state')
+            return attr
         return tuple(getattr(self, _) for _ in args)
 
 

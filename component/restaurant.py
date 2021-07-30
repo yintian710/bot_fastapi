@@ -65,6 +65,16 @@ def save_restaurants_cache(user_id, cache):
     update_restaurant(user_id, {'cache': cache, 'active': time.time()})
 
 
+def get_all_restaurant(user_id):
+    """
+    获取所有数据
+    :param user_id:
+    :return:
+    """
+    res = select_restaurant(user_id, '*')
+    return res
+
+
 def get_one_restaurant(user_id, restaurant_name) -> dict:
     """
     获取单个食府数据
@@ -286,6 +296,25 @@ def change_user_restaurant_name(user_id, restaurant_name):
     return get_return(f'{this}成功命名为：{restaurant_name}')
 
 
+@is_regis
+def get_user_all_restaurant_data(user_id):
+    """
+    获取用户所有食府数据
+    :param user_id:
+    :return:
+    """
+    restaurant = get_all_restaurant(user_id)
+    result = {}
+    for key, value in restaurant.items():
+        if not value:
+            result[key] = {}
+        elif ':' in str(value):
+            result[key] = json.loads(value)
+        else:
+            result[key] = value
+    return get_return('获取成功', need=result)
+
+
 if __name__ == '__main__':
-    res = get_restaurant('1327960105')
+    res = get_user_all_restaurant_data(1327960105)
     print(res)

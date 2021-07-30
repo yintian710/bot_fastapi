@@ -19,7 +19,7 @@ score = APIRouter(
 )
 
 
-@score.get('/{user_id}/daily')
+@score.post('/daily')
 async def score_daily(user_id: int):
     """
     用户签到
@@ -30,7 +30,7 @@ async def score_daily(user_id: int):
     return result
 
 
-@score.get('/{user_id}/search')
+@score.post('/search')
 async def score_search(user_id: int):
     """
     查询积分入口
