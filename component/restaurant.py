@@ -304,7 +304,7 @@ def get_user_all_restaurant_data(user_id):
     :return:
     """
     restaurant = get_all_restaurant(user_id)
-    result = {}
+    result = {'restaurant': {}}
     for key, value in restaurant.items():
         if not value:
             result[key] = {}
@@ -312,6 +312,8 @@ def get_user_all_restaurant_data(user_id):
             result[key] = json.loads(value)
         else:
             result[key] = value
+        if 'restaurant' in key:
+            result['restaurant'][key] = result[key]
     return get_return('获取成功', need=result)
 
 
