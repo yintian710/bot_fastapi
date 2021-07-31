@@ -11,7 +11,7 @@ import time
 
 from sql.employ import select_restaurant, update_restaurant
 from tool.CONTANT import GO_WEIGHT, NEXT_WEIGHT, RESTAURANT_LIST
-from tool.common import is_regis, get_return
+from tool.common import is_regis, get_return, get_random_value_dict_for_dict_weight
 
 
 def save_restaurants_data(user_id, restaurant, this, go=None) -> None:
@@ -93,7 +93,7 @@ def get_restaurant(user_id) -> (str, dict):
     :param user_id:
     :return:
     """
-    this = get_this(user_id)
+    this = get_this_id(user_id)
     restaurant = select_restaurant(user_id, this)[0]
     restaurant = json.loads(restaurant)
     return this, restaurant
@@ -119,13 +119,13 @@ def get_restaurant_data(user_id):
     :param user_id:
     :return:
     """
-    this = get_this(user_id)
+    this = get_this_id(user_id)
     go, did, restaurant = select_restaurant(user_id, 'go', 'did', this)
     restaurant = json.loads(restaurant)
     return go, did, restaurant
 
 
-def get_this(user_id) -> str:
+def get_this_id(user_id) -> str:
     """
     获取当前用户选定食府id
     :param user_id:
@@ -158,9 +158,8 @@ def get_random_food(food_dic: dict, ignore=None) -> str:
     food = food_dic.copy()
     if ignore:
         food.pop(ignore)
-    foods = list(food.keys())
-    weights = list(food.values())
-    random_food = random.choices(foods, weights=weights)
+    random_dict = get_random_value_dict_for_dict_weight(food, value='name', weight='weight')
+    random_food = random.choices(random_dict['value'], weights=random_dict['weight'])
     return random_food[0]
 
 
@@ -205,11 +204,11 @@ def go_restaurant(user_id):
     :param user_id:
     :return:
     """
-    this = get_this(user_id)
+    this = get_this_id(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     if not go:
         return get_return(public_msg=f'不要两次选同一个呀，再摇一下叭~', need={'food': go})
-    restaurant['food'][go] += GO_WEIGHT
+    restaurant['food'][go]['weight'] += GO_WEIGHT
     restaurant['last_time'] = time.time()
     did_restaurant(user_id, go)
     save_restaurants_data(user_id, restaurant, this, '')
@@ -223,11 +222,11 @@ def next_restaurant(user_id):
     :param user_id:
     :return:
     """
-    this = get_this(user_id)
+    this = get_this_id(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     now = time.time()
     if go:
-        restaurant['food'][go] += NEXT_WEIGHT
+        restaurant['food'][go]['weight'] += NEXT_WEIGHT
     food_dic = restaurant['food']
     did = get_restaurants_did(user_id)
     if (len(did) > 2) and (did[-1]['food'] == did[-2]['food'] == go) and (did[-1]['time'] - did[-2]['time'] < 86400) \
@@ -250,7 +249,7 @@ def add_restaurants(user_id, add):
     :param add:
     :return:
     """
-    this = get_this(user_id)
+    this = get_this_id(user_id)
     go, did, restaurant = get_restaurant_data(user_id)
     add = add.split(' ')
     foods = restaurant['food']
@@ -259,7 +258,7 @@ def add_restaurants(user_id, add):
         if _ in foods:
             repeat += _ + ' '
             continue
-        foods[_] = 100
+        foods[_] = {'name': _, 'weight': 100}
     restaurant['food'] = foods
     save_restaurants_data(user_id, restaurant, this, go)
     return get_return(public_msg=f'添加成功{"!" if not repeat else f", 其中{repeat}重复！"}')
@@ -279,7 +278,7 @@ def change_user_this(user_id, new_this_num):
     if not select_restaurant(user_id, new_this)[0]:
         new_restaurant(user_id, new_this)
     change_this(user_id, new_this)
-    return get_return(f'成功切换至食府{new_this}')
+    return get_return(f'成功切换至食府{new_this_num}')
 
 
 @is_regis
@@ -293,7 +292,7 @@ def change_user_restaurant_name(user_id, restaurant_name):
     this = change_restaurant_name(user_id, restaurant_name)
     if not this:
         return get_return(f'食府选择出错')
-    return get_return(f'{this}成功命名为：{restaurant_name}')
+    return get_return(f'{this[-1]}成功命名为：{restaurant_name}')
 
 
 @is_regis
@@ -315,6 +314,12 @@ def get_user_all_restaurant_data(user_id):
         if 'restaurant' in key:
             result['restaurant'][key] = result[key]
     return get_return('获取成功', need=result)
+
+
+@is_regis
+def get_user_this(user_id):
+    go, did, restaurant = get_restaurant_data(user_id)
+    return get_return(f'您当前食府为{restaurant["name"]}', need=restaurant)
 
 
 if __name__ == '__main__':

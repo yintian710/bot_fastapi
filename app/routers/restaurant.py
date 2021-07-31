@@ -11,7 +11,7 @@ from fastapi import APIRouter
 from Data.RestaurantData import RestaurantData
 from Data.userData import UserData
 from component.restaurant import get_user_restaurant, next_restaurant, go_restaurant, add_restaurants, change_user_this, \
-    change_user_restaurant_name, get_user_all_restaurant_data
+    change_user_restaurant_name, get_user_all_restaurant_data, get_user_this
 
 restaurants = APIRouter(
     prefix="/restaurants",
@@ -71,6 +71,13 @@ async def _(data: RestaurantData):
 async def _(data: UserData):
     user_id = data.user_id
     result = go_restaurant(user_id)
+    return result
+
+
+@restaurants.post('/this')
+async def _(data: UserData):
+    user_id = data.user_id
+    result = get_user_this(user_id)
     return result
 
 

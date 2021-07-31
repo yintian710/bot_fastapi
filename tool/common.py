@@ -184,6 +184,14 @@ def enough_score(user_id, score):
     return False
 
 
+def get_random_value_dict_for_dict_weight(dic: dict, value: str, weight: str):
+    res_dict = {'value': [], 'weight': []}
+    for k, v in dic.items():
+        res_dict['value'].append(v[value])
+        res_dict['weight'].append(v[weight])
+    return res_dict
+
+
 if __name__ == '__main__':
     str1 = """print(136845)"""
     a = str_to_python_code(str1)
